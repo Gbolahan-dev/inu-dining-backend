@@ -11,7 +11,7 @@ resource "helm_release" "staging" {
 
   set {
     name  = "image.repository"
-    value = "${google_artifact_registry_repository.app_repo.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.app_repo.repository_id}/inu-dining"
+    value = "${google_artifact_registry_repository.app_repo.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.app_repo.repository_id}/inu-dining-backend"
   }
   set {
     name  = "image.tag"
@@ -37,7 +37,7 @@ resource "helm_release" "production" {
 
   set {
     name  = "image.repository"
-    value = "${google_artifact_registry_repository.app_repo.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.app_repo.repository_id}/inu-dining"
+    value = "${google_artifact_registry_repository.app_repo.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.app_repo.repository_id}/inu-dining-backend"
   }
   set {
     name  = "image.tag"
