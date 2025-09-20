@@ -1,0 +1,70 @@
+# STEPS
+steps:
+  # STEP 0: build
+  - id: "Build"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "us-central1-docker.pkg.dev/${PROJECT_ID}/inu-dining-backend-repo/inu-dining-backend:${SHORT_SHA}", "."]
+
+  # STEP 1: push
+  - id: "PUSH-IMAGE"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "us-central1-docker.pkg.dev/${PROJECT_ID}/inu-dining-backend-repo/inu-dining-backend:${SHORT_SHA}"]
+    waitFor: ["Build"]
+
+  # STEP 2: deploy to staging (unconditional, or gate if you prefer)
+  - id: "DEPLOY-STAGING"
+    name: "hashicorp/terraform:1.5.7"
+    dir: "infra"
+    entrypoint: "sh"
+    env:
+      - TF_IN_AUTOMATION=1
+      - TF_VAR_project_id=${PROJECT_ID}
+        # TF_VAR_github_app_installation_id=${_GITHUB_APP_INSTALL_ID}
+      - TF_VAR_image_tag=${SHORT_SHA}
+    args:
+      - -c
+      - |
+        set -e
+        terraform init -input=false
+        terraform apply -auto-approve -input=false \
+          -var="image_tag=${SHORT_SHA}" \
+          -target=helm_release.staging
+    waitFor: ["PUSH-IMAGE"]
+
+  # STEP 3: placeholder (note: this is NOT a real approval gate)
+  - id: "hold-for-approval"
+    name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args: ["-c", "echo '🛑 This is a placeholder. Use Cloud Build Approvals to actually pause.'"]
+    waitFor: ["DEPLOY-STAGING"]
+
+  # STEP 4: deploy to prod only when _TARGET_ENV=prod
+  - id: "DEPLOY-PROD"
+    name: "hashicorp/terraform:1.5.7"
+    dir: "infra"
+    entrypoint: "sh"
+    env:
+      - TF_IN_AUTOMATION=1
+      - TF_VAR_project_id=${PROJECT_ID}
+        # TF_VAR_github_app_installation_id=${_GITHUB_APP_INSTALL_ID}
+      - TF_VAR_image_tag=${SHORT_SHA}
+    args:
+      - -c
+      - |
+        set -e
+        if [ "${_TARGET_ENV}" = "prod" ]; then
+          echo "Deploying to PRODUCTION"
+          terraform init -input=false
+          terraform apply -auto-approve -input=false \
+            -var="image_tag=${SHORT_SHA}" \
+            -target=helm_release.production
+          echo ">>> Terraform apply for PRODUCTION GKE complete."
+        else
+          echo "Skipping prod deploy for _TARGET_ENV=${_TARGET_ENV}"
+        fi
+    waitFor: ["hold-for-approval"]
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+

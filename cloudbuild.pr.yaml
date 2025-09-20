@@ -1,0 +1,26 @@
+# cloudbuild.pr.yaml
+
+options:
+  logging: CLOUD_LOGGING_ONLY # Correct for custom SA
+
+steps:
+  # STEP 0: Install project dependencies using pnpm
+  # The 'node:20' image includes 'npx', which can run pnpm without global install.
+  - name: 'node:20'
+    id: 'Install Dependencies'
+    entrypoint: 'npx' # Use npx as the entrypoint
+    args: ['npm', 'install'] # npx will fetch and run pnpm with the 'install' arg
+
+  # STEP 1: Run Linter
+  - name: 'node:20'
+    id: 'Lint'
+    entrypoint: 'npx'
+    args: ['npm', 'run', 'lint'] # npx will fetch and run pnpm with 'run lint'
+    waitFor: ['Install Dependencies']
+
+  # STEP 2: Run Tests
+  - name: 'node:20'
+    id: 'Test'
+    entrypoint: 'npx'
+    args: ['npm', 'run', 'test'] # npx will fetch and run pnpm with 'run test'
+    waitFor: ['Install Dependencies']

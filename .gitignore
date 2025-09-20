@@ -52,5 +52,20 @@ pids
 *.seed
 *.pid.lock
 
+# Local Terraform directories
+.terraform/
+
+# Terraform state files (if you were running locally without a backend)
+*.tfstate
+*.tfstate.backup
+
+# Terraform crash logs
+crash.log
+
+# Terraform tfvars files should not be committed if they contain secrets.
+# It's a good practice to ignore them to prevent accidents.
+terraform.tfvars
+*.auto.tfvars
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
