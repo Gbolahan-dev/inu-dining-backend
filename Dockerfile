@@ -33,7 +33,7 @@ COPY --from=builder /usr/src/app/generated ./generated
 COPY --from=builder /usr/src/app/prisma ./prisma
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 
-EXPOSE 3000
+EXPOSE 4000
 
 # This command runs the application.
 CMD ["node", "dist/main.js"]

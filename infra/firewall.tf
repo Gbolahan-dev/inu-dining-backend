@@ -10,7 +10,7 @@ resource "google_compute_firewall" "inu-dining-firewall" {
 
   allow {
     protocol = "tcp"
-    ports    = ["3000"]
+    ports    = ["4000"]
   }
 }
 
