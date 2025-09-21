@@ -80,7 +80,7 @@ resources:
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
   #   cpu: 100m
-     memory: 768Mi
+     memory: 1Gi
   requests:
      cpu: 100m
      memory: 256Mi
@@ -92,7 +92,8 @@ startupProbe:
     port: http
   # ~5 minutes of startup budget: 60 * 5s = 300s
   periodSeconds: 5
-  failureThreshold: 60
+  failureThreshold: 120
+  timeoutSeconds: 2
 livenessProbe:
   httpGet:
     path: /
